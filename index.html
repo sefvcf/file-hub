@@ -3,221 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>小猪的文件站 | 提取码下载</title>
+<title>小猪的文件站</title>
 <style>
   :root {
-    --bg: #0a0a14;
-    --surface: #151525;
-    --card: #1e1e35;
-    --text: #e2e2f0;
-    --muted: #8888aa;
-    --accent: #7c5cfc;
-    --accent2: #a78bfa;
-    --green: #34d399;
-    --red: #f87171;
-    --radius: 14px;
-    --shadow: 0 8px 32px rgba(0,0,0,0.5);
+    --bg: #0a0a14; --surface: #151525; --card: #1e1e35;
+    --text: #e2e2f0; --muted: #8888aa; --accent: #7c5cfc; --accent2: #a78bfa;
+    --green: #34d399; --red: #f87171; --radius: 14px;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px;
   }
+  .container { width: 100%; max-width: 620px; margin: 0 auto; }
 
-  .container {
-    width: 100%;
-    max-width: 560px;
-    padding: 24px;
-  }
-
-  /* Lock Screen */
-  .lock-screen {
-    text-align: center;
-  }
-  .lock-icon {
-    font-size: 4rem;
-    margin-bottom: 16px;
-    filter: drop-shadow(0 4px 16px rgba(124,92,252,0.3));
-  }
-  .lock-screen h1 {
-    font-size: 1.5rem;
-    margin-bottom: 8px;
+  /* Lock */
+  .lock-screen { text-align: center; padding-top: 60px; }
+  .lock-icon { font-size: 4rem; margin-bottom: 16px; filter: drop-shadow(0 4px 16px rgba(124,92,252,0.3)); }
+  .lock-screen h1 { font-size: 1.5rem; margin-bottom: 8px;
     background: linear-gradient(135deg, var(--accent2), #f093fb);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .lock-screen .desc {
-    color: var(--muted);
-    font-size: 0.9rem;
-    margin-bottom: 28px;
-  }
-  .code-input-wrap {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-  }
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .lock-screen .desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; }
+  .code-input-wrap { display: flex; gap: 10px; justify-content: center; }
   .code-input-wrap input {
-    width: 200px;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 2px solid rgba(255,255,255,0.1);
-    background: var(--surface);
-    color: var(--text);
-    font-size: 1.1rem;
-    text-align: center;
-    letter-spacing: 4px;
-    outline: none;
-    transition: border-color 0.3s;
-  }
+    width: 180px; padding: 12px 16px; border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.1); background: var(--surface);
+    color: var(--text); font-size: 1.1rem; text-align: center; letter-spacing: 4px; outline: none; }
   .code-input-wrap input:focus { border-color: var(--accent); }
   .btn {
-    padding: 12px 24px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: 600;
-    transition: all 0.3s;
-    white-space: nowrap;
-  }
+    padding: 10px 22px; border-radius: 10px; border: none; cursor: pointer;
+    font-size: 0.9rem; font-weight: 600; transition: all 0.3s; white-space: nowrap; }
   .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: #6a4ce0; transform: translateY(-1px); }
+  .btn-primary:hover:not(:disabled) { background: #6a4ce0; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
   .btn-ghost { background: transparent; color: var(--muted); border: 1px solid rgba(255,255,255,0.1); }
-  .error-msg {
-    color: var(--red);
-    font-size: 0.85rem;
-    margin-top: 12px;
-    min-height: 20px;
-  }
+  .btn-sm { padding: 6px 14px; font-size: 0.78rem; border-radius: 6px; }
+  .error-msg { color: var(--red); font-size: 0.85rem; margin-top: 12px; min-height: 20px; }
 
-  /* File List Screen */
-  .file-screen { display: none; }
-  .file-screen.active { display: block; }
+  /* Main screen */
+  .main-screen { display: none; }
+  .main-screen.active { display: block; }
 
   .header-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.06); flex-wrap: wrap; gap: 8px;
   }
-  .header-bar h2 {
-    font-size: 1.3rem;
+  .header-bar h2 { font-size: 1.3rem;
     background: linear-gradient(135deg, var(--accent2), #f093fb);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header-bar .count { font-size: 0.78rem; color: var(--muted); background: var(--surface); padding: 4px 10px; border-radius: 12px; }
+
+  /* Upload section */
+  .upload-section { background: var(--surface); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+  .upload-toggle {
+    display: flex; align-items: center; gap: 8px; padding: 12px 16px;
+    cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: background 0.2s;
   }
-  .header-bar .count {
-    font-size: 0.8rem;
-    color: var(--muted);
-    background: var(--surface);
-    padding: 4px 10px;
-    border-radius: 12px;
+  .upload-toggle:hover { background: rgba(255,255,255,0.03); }
+  .upload-toggle .arrow { transition: transform 0.3s; font-size: 0.7rem; }
+  .upload-toggle.open .arrow { transform: rotate(90deg); }
+  .upload-body { display: none; padding: 0 16px 16px; }
+  .upload-body.open { display: block; }
+
+  .form-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .form-row input[type="password"] {
+    flex: 1; padding: 9px 12px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1); background: var(--card);
+    color: var(--text); font-size: 0.85rem; outline: none; }
+  .form-row input:focus { border-color: var(--accent); }
+
+  .file-drop {
+    border: 2px dashed rgba(255,255,255,0.12); border-radius: 10px;
+    padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 10px;
   }
+  .file-drop:hover, .file-drop.dragover { border-color: var(--accent); background: rgba(124,92,252,0.04); }
+  .file-drop .icon { font-size: 2rem; }
+  .file-drop p { color: var(--muted); font-size: 0.8rem; margin-top: 4px; }
+  .file-drop input { display: none; }
+
+  .upload-queue { margin-bottom: 10px; }
+  .queue-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--card); border-radius: 6px; margin-bottom: 4px; font-size: 0.82rem; }
+  .queue-item .qname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .queue-item .qsize { color: var(--muted); font-size: 0.75rem; }
+  .queue-item .qdel { color: var(--red); cursor: pointer; background: none; border: none; font-size: 1rem; padding: 0 4px; }
+
+  .progress-bar { height: 3px; background: var(--card); border-radius: 2px; margin: 8px 0; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; border-radius: 2px; width: 0%; }
+  .log-area { font-size: 0.78rem; color: var(--muted); max-height: 120px; overflow-y: auto; }
+  .log-area .ok { color: var(--green); }
+  .log-area .err { color: var(--red); }
+
+  /* Search & File list */
   .search-box {
-    width: 100%;
-    padding: 10px 14px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.08);
-    background: var(--surface);
-    color: var(--text);
-    font-size: 0.9rem;
-    margin-bottom: 16px;
-    outline: none;
-    transition: border-color 0.3s;
-  }
+    width: 100%; padding: 9px 14px; border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08); background: var(--surface);
+    color: var(--text); font-size: 0.9rem; margin-bottom: 14px; outline: none; }
   .search-box:focus { border-color: var(--accent); }
 
-  /* File Cards */
-  .file-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-height: 60vh;
-    overflow-y: auto;
-    padding-right: 4px;
-  }
+  .file-list { display: flex; flex-direction: column; gap: 10px; max-height: 55vh; overflow-y: auto; padding-right: 2px; }
   .file-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: var(--card);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    border: 1px solid rgba(255,255,255,0.04);
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  .file-card:hover {
-    transform: translateX(4px);
-    box-shadow: var(--shadow);
-  }
-  .file-icon {
-    font-size: 2rem;
-    flex-shrink: 0;
-    width: 48px;
-    text-align: center;
-  }
-  .file-meta {
-    flex: 1;
-    min-width: 0;
-  }
-  .file-name {
-    font-weight: 600;
-    font-size: 0.95rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .file-info {
-    font-size: 0.75rem;
-    color: var(--muted);
-    display: flex;
-    gap: 12px;
-    margin-top: 2px;
-  }
+    display: flex; align-items: center; gap: 12px; background: var(--card);
+    border-radius: var(--radius); padding: 12px 14px; border: 1px solid rgba(255,255,255,0.04); transition: transform 0.2s; }
+  .file-card:hover { transform: translateX(4px); }
+  .file-icon { font-size: 1.8rem; width: 44px; text-align: center; flex-shrink: 0; }
+  .file-meta { flex: 1; min-width: 0; }
+  .file-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-info { font-size: 0.72rem; color: var(--muted); display: flex; gap: 10px; margin-top: 2px; }
   .dl-btn {
-    padding: 8px 18px;
-    border-radius: 8px;
-    border: none;
-    background: var(--accent);
-    color: #fff;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    flex-shrink: 0;
-    text-decoration: none;
-    transition: all 0.3s;
-    display: inline-block;
-  }
+    padding: 7px 16px; border-radius: 8px; border: none; background: var(--accent); color: #fff;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer; flex-shrink: 0; text-decoration: none; transition: all 0.3s; }
   .dl-btn:hover { background: #6a4ce0; transform: scale(1.04); }
+  .empty-state { text-align: center; padding: 40px; color: var(--muted); }
 
-  .empty-state {
-    text-align: center;
-    padding: 40px;
-    color: var(--muted);
-  }
-
-  .footer {
-    text-align: center;
-    padding: 24px;
-    color: var(--muted);
-    font-size: 0.75rem;
-  }
+  .footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.72rem; }
 
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 4px; }
 
   @media (max-width: 480px) {
     .code-input-wrap { flex-direction: column; align-items: center; }
     .code-input-wrap input { width: 100%; }
     .file-card { flex-wrap: wrap; }
+    .header-bar { flex-direction: column; align-items: flex-start; }
   }
 </style>
 </head>
@@ -225,150 +134,241 @@
 
 <div class="container">
 
-  <!-- ===== 提取码验证 ===== -->
+  <!-- ===== Lock Screen ===== -->
   <div class="lock-screen" id="lockScreen">
     <div class="lock-icon">🔐</div>
     <h1>小猪的文件站</h1>
     <p class="desc">请输入提取码以访问文件</p>
     <div class="code-input-wrap">
-      <input type="password" id="codeInput" placeholder="输入提取码" maxlength="16" onkeydown="if(event.key==='Enter')checkCode()">
+      <input type="password" id="codeInput" placeholder="提取码" maxlength="16" onkeydown="if(event.key==='Enter')checkCode()">
       <button class="btn btn-primary" onclick="checkCode()">验证</button>
     </div>
     <div class="error-msg" id="errorMsg"></div>
   </div>
 
-  <!-- ===== 文件列表 ===== -->
-  <div class="file-screen" id="fileScreen">
+  <!-- ===== Main Screen ===== -->
+  <div class="main-screen" id="mainScreen">
     <div class="header-bar">
-      <h2>📁 可用文件</h2>
-      <span class="count" id="fileCount">0 个文件</span>
+      <h2>📁 文件站</h2>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="count" id="fileCount">0 个文件</span>
+        <button class="btn btn-ghost btn-sm" onclick="lockAgain()">🔒 锁定</button>
+      </div>
     </div>
+
+    <!-- Upload -->
+    <div class="upload-section" id="uploadSection">
+      <div class="upload-toggle" onclick="toggleUpload()">
+        <span class="arrow">▶</span> 📤 上传文件
+      </div>
+      <div class="upload-body" id="uploadBody">
+        <div class="form-row">
+          <input type="password" id="tokenInput" placeholder="GitHub Token（需 repo 权限）">
+          <button class="btn btn-primary btn-sm" onclick="saveToken()" style="flex-shrink:0;">保存</button>
+        </div>
+        <div class="file-drop" id="dropZone" onclick="document.getElementById('fileInput').click()">
+          <div class="icon">📂</div>
+          <p>点击选择文件或拖拽到此处</p>
+          <input type="file" id="fileInput" multiple onchange="addFiles(this.files)">
+        </div>
+        <div class="upload-queue" id="uploadQueue"></div>
+        <button class="btn btn-primary" id="uploadBtn" onclick="uploadAll()" disabled>⬆ 上传到 GitHub</button>
+        <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+        <div class="log-area" id="log"></div>
+        <p style="font-size:0.68rem;color:var(--muted);margin-top:6px;text-align:center;">
+          Token 只存浏览器本地 · 需要 <a href="https://github.com/settings/tokens/new?scopes=repo&description=file-hub" target="_blank" style="color:var(--accent2);">创建 Token</a>（勾选 repo）
+        </p>
+      </div>
+    </div>
+
+    <!-- Search & File List -->
     <input type="text" class="search-box" id="searchInput" placeholder="🔍 搜索文件名..." oninput="renderFiles()">
     <div class="file-list" id="fileList"></div>
-    <button class="btn btn-ghost" style="margin-top:16px;width:100%;" onclick="lockAgain()">🔒 重新锁定</button>
   </div>
 
 </div>
 
 <div class="footer">
-  <p>🐷 小猪的文件站 · 提取码保护 · Powered by GitHub Pages · <a href="admin.html" style="color:var(--accent2);text-decoration:none;">📤 管理文件</a></p>
+  <p>🐷 小猪的文件站 · 提取码保护 · GitHub存储 · Powered by GitHub Pages</p>
 </div>
 
 <script>
-  // ========== 配置 ==========
-  const ACCESS_CODE = '1234';
+const REPO = 'sefvcf/file-hub';
+const ACCESS_CODE = '234';
+const CODE_KEY = 'fh_access';
+const TOKEN_KEY = 'fh_token';
 
-  // ========== 逻辑 ==========
-  const CODE_KEY = 'filehub_access';
-  let files = [];
+let files = [], uploadQueue = [];
 
-  function checkCode() {
-    const input = document.getElementById('codeInput').value.trim();
-    const err = document.getElementById('errorMsg');
-    if (!input) { err.textContent = '请输入提取码'; return; }
-    if (input !== ACCESS_CODE) {
-      err.textContent = '❌ 提取码错误，请重试';
-      document.getElementById('codeInput').value = '';
-      return;
-    }
-    sessionStorage.setItem(CODE_KEY, '1');
-    showFiles();
+// ========== Auth ==========
+function checkCode() {
+  const v = document.getElementById('codeInput').value.trim();
+  if (!v) { document.getElementById('errorMsg').textContent = '请输入提取码'; return; }
+  if (v !== ACCESS_CODE) { document.getElementById('errorMsg').textContent = '❌ 提取码错误'; document.getElementById('codeInput').value = ''; return; }
+  sessionStorage.setItem(CODE_KEY, '1');
+  unlock();
+}
+
+function unlock() {
+  document.getElementById('lockScreen').style.display = 'none';
+  document.getElementById('mainScreen').classList.add('active');
+  loadFiles().then(renderFiles);
+  if (sessionStorage.getItem(TOKEN_KEY)) document.getElementById('tokenInput').value = sessionStorage.getItem(TOKEN_KEY);
+}
+
+function lockAgain() {
+  sessionStorage.removeItem(CODE_KEY);
+  document.getElementById('lockScreen').style.display = 'block';
+  document.getElementById('mainScreen').classList.remove('active');
+  document.getElementById('codeInput').value = '';
+  document.getElementById('errorMsg').textContent = '';
+}
+
+// ========== Upload ==========
+function toggleUpload() {
+  const body = document.getElementById('uploadBody');
+  const toggle = document.querySelector('.upload-toggle');
+  body.classList.toggle('open');
+  toggle.classList.toggle('open');
+}
+
+function saveToken() {
+  const t = document.getElementById('tokenInput').value.trim();
+  if (!t) return;
+  sessionStorage.setItem(TOKEN_KEY, t);
+  document.getElementById('log').innerHTML = '<span class="ok">✅ Token 已保存</span>';
+}
+
+function addFiles(fileList) {
+  for (const f of fileList) {
+    if (uploadQueue.find(q => q.name === f.name)) continue;
+    uploadQueue.push(f);
   }
+  renderQueue();
+  document.getElementById('fileInput').value = '';
+}
 
-  async function showFiles() {
-    document.getElementById('lockScreen').style.display = 'none';
-    document.getElementById('fileScreen').classList.add('active');
-    document.getElementById('fileList').innerHTML = '<div class="empty-state">⏳ 加载文件列表...</div>';
-    await loadFiles();
-    renderFiles();
-  }
+function removeFromQueue(name) {
+  uploadQueue = uploadQueue.filter(f => f.name !== name);
+  renderQueue();
+}
 
-  async function loadFiles() {
+function renderQueue() {
+  const q = document.getElementById('uploadQueue');
+  const btn = document.getElementById('uploadBtn');
+  if (uploadQueue.length === 0) { q.innerHTML = ''; btn.disabled = true; return; }
+  btn.disabled = false;
+  q.innerHTML = uploadQueue.map(f => `
+    <div class="queue-item"><span>📄</span><span class="qname">${f.name}</span><span class="qsize">${(f.size/1024/1024).toFixed(1)}MB</span><button class="qdel" onclick="removeFromQueue('${f.name}')">✕</button></div>
+  `).join('');
+}
+
+// Drag & drop
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); addFiles(e.dataTransfer.files); });
+
+async function uploadAll() {
+  const token = sessionStorage.getItem(TOKEN_KEY);
+  if (!token) { document.getElementById('log').innerHTML = '<span class="err">❌ 请先输入并保存 GitHub Token</span>'; return; }
+
+  const log = document.getElementById('log');
+  const bar = document.getElementById('progressBar');
+  const btn = document.getElementById('uploadBtn');
+  log.innerHTML = ''; btn.disabled = true;
+
+  let ok = 0, fail = 0;
+  for (let i = 0; i < uploadQueue.length; i++) {
+    const file = uploadQueue[i];
+    bar.style.width = Math.round((i / uploadQueue.length) * 100) + '%';
+    log.innerHTML += `⏳ ${file.name}...<br>`;
+
     try {
-      const resp = await fetch('https://api.github.com/repos/sefvcf/file-hub/contents/files?ref=main');
-      if (!resp.ok) { files = []; return; }
-      const data = await resp.json();
-      if (!Array.isArray(data)) { files = []; return; }
-      files = data
-        .filter(f => f.type === 'file')
-        .map(f => ({
-          name: f.name,
-          size: formatSize(f.size || 0),
-          type: getFileType(f.name),
-          desc: new Date().toLocaleDateString('zh-CN'),
-          url: f.download_url || `files/${encodeURIComponent(f.name)}`,
-          icon: getFileIcon(f.name)
-        }));
-    } catch { files = []; }
-  }
+      const b64 = await new Promise((res, rej) => {
+        const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.onerror = rej; r.readAsDataURL(file);
+      });
 
-  function formatSize(bytes) {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / 1048576).toFixed(1) + ' MB';
-  }
+      let resp = await fetch(`https://api.github.com/repos/${REPO}/contents/files/${encodeURIComponent(file.name)}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: `Upload ${file.name}`, content: b64, branch: 'main' })
+      });
 
-  function getFileType(name) {
-    const ext = name.split('.').pop().toLowerCase();
-    const map = { pdf:'PDF', zip:'ZIP', rar:'RAR', '7z':'7Z', exe:'程序', msi:'程序',
-      mp4:'视频', mp3:'音频', avi:'视频', mkv:'视频', flac:'音频', wav:'音频',
-      jpg:'图片', png:'图片', gif:'图片', svg:'图片', webp:'图片',
-      doc:'文档', docx:'文档', xls:'表格', xlsx:'表格', ppt:'幻灯片', pptx:'幻灯片',
-      md:'文档', txt:'文本', json:'数据', xml:'数据', html:'网页', css:'样式', js:'脚本' };
-    return map[ext] || ext.toUpperCase();
-  }
+      if (resp.status === 422) {
+        const sha = await fetch(`https://api.github.com/repos/${REPO}/contents/files/${encodeURIComponent(file.name)}?ref=main`, { headers: { 'Authorization': `token ${token}` } }).then(r => r.json()).then(d => d.sha);
+        resp = await fetch(`https://api.github.com/repos/${REPO}/contents/files/${encodeURIComponent(file.name)}`, {
+          method: 'PUT',
+          headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `Update ${file.name}`, content: b64, sha, branch: 'main' })
+        });
+      }
 
-  function getFileIcon(name) {
-    const ext = name.split('.').pop().toLowerCase();
-    const map = { pdf:'📄', zip:'📦', rar:'🗜️', '7z':'🗜️', exe:'⚙️', msi:'⚙️',
-      mp4:'🎬', mp3:'🎵', avi:'🎬', mkv:'🎬', flac:'🎵', wav:'🎵',
-      jpg:'🖼️', png:'🖼️', gif:'🖼️', svg:'🎨', webp:'🖼️',
-      doc:'📝', docx:'📝', xls:'📊', xlsx:'📊', ppt:'📽️', pptx:'📽️',
-      md:'📝', txt:'📃', json:'📋', xml:'📋', html:'🌐', css:'🎨', js:'📜' };
-    return map[ext] || '📁';
-  }
-
-  function lockAgain() {
-    sessionStorage.removeItem(CODE_KEY);
-    document.getElementById('lockScreen').style.display = 'block';
-    document.getElementById('fileScreen').classList.remove('active');
-    document.getElementById('codeInput').value = '';
-    document.getElementById('errorMsg').textContent = '';
-  }
-
-  function renderFiles() {
-    const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
-    const filtered = q ? files.filter(f =>
-      f.name.toLowerCase().includes(q) || f.type.toLowerCase().includes(q)
-    ) : files;
-
-    document.getElementById('fileCount').textContent = `${filtered.length} 个文件`;
-
-    const list = document.getElementById('fileList');
-    if (filtered.length === 0) {
-      list.innerHTML = '<div class="empty-state">📭 还没有文件，去 <a href="admin.html" style="color:var(--accent2);">上传页</a> 添加</div>';
-      return;
+      if (resp.ok) { log.innerHTML += `<span class="ok">✅ ${file.name} 成功</span><br>`; ok++; }
+      else { log.innerHTML += `<span class="err">❌ ${file.name} 失败 (${resp.status})</span><br>`; fail++; }
+    } catch (e) {
+      log.innerHTML += `<span class="err">❌ ${file.name}: ${e.message}</span><br>`; fail++;
     }
-
-    list.innerHTML = filtered.map(f => `
-      <div class="file-card">
-        <div class="file-icon">${f.icon}</div>
-        <div class="file-meta">
-          <div class="file-name">${f.name}</div>
-          <div class="file-info">
-            <span>${f.size}</span>
-            <span>${f.type}</span>
-            <span>${f.desc}</span>
-          </div>
-        </div>
-        <a href="${f.url}" class="dl-btn" download>⬇ 下载</a>
-      </div>
-    `).join('');
   }
 
-  // 自动验证
-  if (sessionStorage.getItem(CODE_KEY)) showFiles();
-</script>
+  bar.style.width = '100%'; btn.disabled = false;
+  uploadQueue = []; renderQueue();
+  log.innerHTML += `<br><b>完成：${ok} 成功, ${fail} 失败</b><br>文件列表刷新中...`;
+  setTimeout(async () => { await loadFiles(); renderFiles(); log.innerHTML += '<span class="ok">✅ 已刷新</span>'; }, 2000);
+}
 
+// ========== Download ==========
+async function loadFiles() {
+  try {
+    const resp = await fetch(`https://api.github.com/repos/${REPO}/contents/files?ref=main`);
+    if (!resp.ok) { files = []; return; }
+    const data = await resp.json();
+    if (!Array.isArray(data)) { files = []; return; }
+    files = data.filter(f => f.type === 'file').map(f => ({
+      name: f.name,
+      size: formatSize(f.size || 0),
+      type: getType(f.name),
+      desc: new Date().toLocaleDateString('zh-CN'),
+      url: f.download_url || `files/${encodeURIComponent(f.name)}`,
+      icon: getIcon(f.name)
+    }));
+  } catch { files = []; }
+}
+
+function formatSize(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+  return (b / 1048576).toFixed(1) + ' MB';
+}
+function getType(n) {
+  const m = { pdf:'PDF', zip:'ZIP', rar:'RAR', '7z':'7Z', exe:'程序', msi:'程序', mp4:'视频', mp3:'音频', avi:'视频', mkv:'视频', flac:'音频', wav:'音频', jpg:'图片', png:'图片', gif:'图片', svg:'图片', webp:'图片', doc:'文档', docx:'文档', xls:'表格', xlsx:'表格', ppt:'幻灯片', pptx:'幻灯片', md:'文档', txt:'文本', json:'数据', xml:'数据', html:'网页', css:'样式', js:'脚本', apk:'应用', ipa:'应用', dmg:'镜像', iso:'镜像', torrent:'种子' };
+  return m[n.split('.').pop().toLowerCase()] || n.split('.').pop().toUpperCase();
+}
+function getIcon(n) {
+  const m = { pdf:'📄', zip:'📦', rar:'🗜️', '7z':'🗜️', exe:'⚙️', msi:'⚙️', mp4:'🎬', mp3:'🎵', avi:'🎬', mkv:'🎬', flac:'🎵', wav:'🎵', jpg:'🖼️', png:'🖼️', gif:'🖼️', svg:'🎨', webp:'🖼️', doc:'📝', docx:'📝', xls:'📊', xlsx:'📊', ppt:'📽️', pptx:'📽️', md:'📝', txt:'📃', json:'📋', xml:'📋', html:'🌐', css:'🎨', js:'📜', apk:'📱', ipa:'🍎', iso:'💿' };
+  return m[n.split('.').pop().toLowerCase()] || '📁';
+}
+
+function renderFiles() {
+  const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const filtered = q ? files.filter(f => f.name.toLowerCase().includes(q) || f.type.toLowerCase().includes(q)) : files;
+  document.getElementById('fileCount').textContent = `${filtered.length} 个文件`;
+  const list = document.getElementById('fileList');
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state">📭 还没有文件，在上方上传区添加</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(f => `
+    <div class="file-card">
+      <div class="file-icon">${f.icon}</div>
+      <div class="file-meta"><div class="file-name">${f.name}</div><div class="file-info"><span>${f.size}</span><span>${f.type}</span><span>${f.desc}</span></div></div>
+      <a href="${f.url}" class="dl-btn" download>⬇ 下载</a>
+    </div>
+  `).join('');
+}
+
+// Init
+if (sessionStorage.getItem(CODE_KEY)) unlock();
+</script>
 </body>
 </html>
