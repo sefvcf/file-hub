@@ -349,6 +349,26 @@ function getIcon(n) {
   return m[n.split('.').pop().toLowerCase()] || '📁';
 }
 
+async function downloadFile(name, url) {
+  const btn = event.target;
+  btn.textContent = '⏳'; btn.disabled = true;
+  try {
+    const resp = await fetch(url);
+    const blob = await resp.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    btn.textContent = '⬇ 下载'; btn.disabled = false;
+  } catch(e) {
+    btn.textContent = '❌ 重试'; btn.disabled = false;
+    window.open(url, '_blank');
+  }
+}
+
 function renderFiles() {
   const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
   const filtered = q ? files.filter(f => f.name.toLowerCase().includes(q) || f.type.toLowerCase().includes(q)) : files;
@@ -362,7 +382,7 @@ function renderFiles() {
     <div class="file-card">
       <div class="file-icon">${f.icon}</div>
       <div class="file-meta"><div class="file-name">${f.name}</div><div class="file-info"><span>${f.size}</span><span>${f.type}</span><span>${f.desc}</span></div></div>
-      <a href="${f.url}" class="dl-btn" download>⬇ 下载</a>
+      <button class="dl-btn" onclick="downloadFile('${f.name}', '${f.url}')">⬇ 下载</button>
     </div>
   `).join('');
 }
