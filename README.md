@@ -1,46 +1,43 @@
-# 小猪的文件站 🐷
+# 🐷 小猪的文件站
 
-带提取码保护的便携式文件下载站。纯静态HTML，部署到GitHub Pages即用。
+带提取码保护的便携式文件下载站，部署在 GitHub Pages。
 
-## 功能
+## 🔗 访问地址
 
-- 🔐 **提取码验证** — 输入正确密码才能看到文件列表
-- 🔍 **文件搜索** — 按文件名、类型、日期搜索
-- 📱 **移动端适配** — 手机也能流畅使用
-- 💾 **零后端** — 纯HTML/JS，无服务器成本
-- 🔒 **会话保护** — 关闭标签页后需重新验证
+**https://sefvcf.github.io/file-hub/**
 
-## 自定义你的站点
+默认提取码：`1234`
 
-打开 `index.html`，修改顶部 `<script>` 中的配置：
+## 📤 上传文件
+
+1. 把要分享的文件放到 `files/` 目录下
+2. 编辑 `index.html`，在 `FILES` 数组里添加文件信息：
 
 ```javascript
-// 提取码（改成你想要的）
-const ACCESS_CODE = '1234';
-
-// 文件列表（改成你的文件）
-const FILES = [
-  {
-    name: '你的文件名.pdf',
-    size: '1.5 MB',
-    type: 'PDF',
-    desc: '2024-06-20',
-    url: 'https://你的文件下载链接',
-    icon: '📄'
-  },
-  // ... 添加更多文件
-];
+{
+  name: '文件名.zip',
+  size: '15 MB',
+  type: 'ZIP',
+  desc: '2024-06-25',
+  url: 'files/文件名.zip',    // ← 相对路径，自动匹配 GitHub Pages
+  icon: '📦'
+}
 ```
 
-## 部署
+3. 提交推送，GitHub Pages 自动更新
 
-1. Fork 或创建自己的仓库
-2. 上传文件到仓库
-3. Settings → Pages → Source: `main` branch → Save
-4. 访问 `https://你的用户名.github.io/file-hub/`
+## 🔐 修改提取码
 
-或者直接推送到现有仓库，启用GitHub Pages即可。
+编辑 `index.html` 第 260 行附近：
 
-## 许可
+```javascript
+const ACCESS_CODE = '你的新密码';
+```
+
+## 🛠️ 技术
+
+纯静态 HTML + CSS + JS，零后端，零依赖。
+
+## 📄 许可
 
 MIT

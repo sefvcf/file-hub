@@ -259,40 +259,18 @@
   // 提取码（修改为你想要的）
   const ACCESS_CODE = '1234';
 
-  // 文件列表（修改这里来管理文件）
+  // ========== 文件列表（在这里管理你的文件） ==========
+  // url 填 files/文件名 即可，文件放到仓库的 files/ 目录下
   const FILES = [
-    {
-      name: 'WorkBuddy使用指南.pdf',
-      size: '2.3 MB',
-      type: 'PDF',
-      desc: '2024-06-20',
-      url: 'https://example.com/files/guide.pdf',
-      icon: '📄'
-    },
-    {
-      name: '项目源码包 v1.2.zip',
-      size: '15.8 MB',
-      type: 'ZIP',
-      desc: '2024-06-15',
-      url: 'https://example.com/files/project-v1.2.zip',
-      icon: '📦'
-    },
-    {
-      name: '学习笔记合集.md',
-      size: '340 KB',
-      type: '文档',
-      desc: '2024-06-10',
-      url: 'https://example.com/files/notes.md',
-      icon: '📝'
-    },
-    {
-      name: '工具软件安装包.exe',
-      size: '48.1 MB',
-      type: '程序',
-      desc: '2024-06-01',
-      url: 'https://example.com/files/tool.exe',
-      icon: '⚙️'
-    }
+    // 示例：把真实文件放到 files/ 目录，然后在这配置
+    // {
+    //   name: '你的文件.pdf',
+    //   size: '1.5 MB',
+    //   type: 'PDF',
+    //   desc: '2024-06-20',
+    //   url: 'files/你的文件.pdf',
+    //   icon: '📄'
+    // },
   ];
 
   // ========== 逻辑 ==========
