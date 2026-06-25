@@ -251,30 +251,16 @@
 </div>
 
 <div class="footer">
-  <p>🐷 小猪的文件站 · 提取码保护 · Powered by GitHub Pages</p>
+  <p>🐷 小猪的文件站 · 提取码保护 · Powered by GitHub Pages · <a href="admin.html" style="color:var(--accent2);text-decoration:none;">📤 管理文件</a></p>
 </div>
 
 <script>
   // ========== 配置 ==========
-  // 提取码（修改为你想要的）
   const ACCESS_CODE = '1234';
-
-  // ========== 文件列表（在这里管理你的文件） ==========
-  // url 填 files/文件名 即可，文件放到仓库的 files/ 目录下
-  const FILES = [
-    // 示例：把真实文件放到 files/ 目录，然后在这配置
-    // {
-    //   name: '你的文件.pdf',
-    //   size: '1.5 MB',
-    //   type: 'PDF',
-    //   desc: '2024-06-20',
-    //   url: 'files/你的文件.pdf',
-    //   icon: '📄'
-    // },
-  ];
 
   // ========== 逻辑 ==========
   const CODE_KEY = 'filehub_access';
+  let files = [];
 
   function checkCode() {
     const input = document.getElementById('codeInput').value.trim();
@@ -289,10 +275,57 @@
     showFiles();
   }
 
-  function showFiles() {
+  async function showFiles() {
     document.getElementById('lockScreen').style.display = 'none';
     document.getElementById('fileScreen').classList.add('active');
+    document.getElementById('fileList').innerHTML = '<div class="empty-state">⏳ 加载文件列表...</div>';
+    await loadFiles();
     renderFiles();
+  }
+
+  async function loadFiles() {
+    try {
+      const resp = await fetch('https://api.github.com/repos/sefvcf/file-hub/contents/files?ref=main');
+      if (!resp.ok) { files = []; return; }
+      const data = await resp.json();
+      if (!Array.isArray(data)) { files = []; return; }
+      files = data
+        .filter(f => f.type === 'file')
+        .map(f => ({
+          name: f.name,
+          size: formatSize(f.size || 0),
+          type: getFileType(f.name),
+          desc: new Date().toLocaleDateString('zh-CN'),
+          url: f.download_url || `files/${encodeURIComponent(f.name)}`,
+          icon: getFileIcon(f.name)
+        }));
+    } catch { files = []; }
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
+  }
+
+  function getFileType(name) {
+    const ext = name.split('.').pop().toLowerCase();
+    const map = { pdf:'PDF', zip:'ZIP', rar:'RAR', '7z':'7Z', exe:'程序', msi:'程序',
+      mp4:'视频', mp3:'音频', avi:'视频', mkv:'视频', flac:'音频', wav:'音频',
+      jpg:'图片', png:'图片', gif:'图片', svg:'图片', webp:'图片',
+      doc:'文档', docx:'文档', xls:'表格', xlsx:'表格', ppt:'幻灯片', pptx:'幻灯片',
+      md:'文档', txt:'文本', json:'数据', xml:'数据', html:'网页', css:'样式', js:'脚本' };
+    return map[ext] || ext.toUpperCase();
+  }
+
+  function getFileIcon(name) {
+    const ext = name.split('.').pop().toLowerCase();
+    const map = { pdf:'📄', zip:'📦', rar:'🗜️', '7z':'🗜️', exe:'⚙️', msi:'⚙️',
+      mp4:'🎬', mp3:'🎵', avi:'🎬', mkv:'🎬', flac:'🎵', wav:'🎵',
+      jpg:'🖼️', png:'🖼️', gif:'🖼️', svg:'🎨', webp:'🖼️',
+      doc:'📝', docx:'📝', xls:'📊', xlsx:'📊', ppt:'📽️', pptx:'📽️',
+      md:'📝', txt:'📃', json:'📋', xml:'📋', html:'🌐', css:'🎨', js:'📜' };
+    return map[ext] || '📁';
   }
 
   function lockAgain() {
@@ -305,17 +338,15 @@
 
   function renderFiles() {
     const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
-    const filtered = q ? FILES.filter(f =>
-      f.name.toLowerCase().includes(q) ||
-      f.desc.toLowerCase().includes(q) ||
-      f.type.toLowerCase().includes(q)
-    ) : FILES;
+    const filtered = q ? files.filter(f =>
+      f.name.toLowerCase().includes(q) || f.type.toLowerCase().includes(q)
+    ) : files;
 
     document.getElementById('fileCount').textContent = `${filtered.length} 个文件`;
 
     const list = document.getElementById('fileList');
     if (filtered.length === 0) {
-      list.innerHTML = '<div class="empty-state">🔍 没有匹配的文件</div>';
+      list.innerHTML = '<div class="empty-state">📭 还没有文件，去 <a href="admin.html" style="color:var(--accent2);">上传页</a> 添加</div>';
       return;
     }
 
