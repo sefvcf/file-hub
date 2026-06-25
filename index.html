@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小猪的文件站 | 提取码下载</title>
+<style>
+  :root {
+    --bg: #0a0a14;
+    --surface: #151525;
+    --card: #1e1e35;
+    --text: #e2e2f0;
+    --muted: #8888aa;
+    --accent: #7c5cfc;
+    --accent2: #a78bfa;
+    --green: #34d399;
+    --red: #f87171;
+    --radius: 14px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 560px;
+    padding: 24px;
+  }
+
+  /* Lock Screen */
+  .lock-screen {
+    text-align: center;
+  }
+  .lock-icon {
+    font-size: 4rem;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 4px 16px rgba(124,92,252,0.3));
+  }
+  .lock-screen h1 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--accent2), #f093fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .lock-screen .desc {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 28px;
+  }
+  .code-input-wrap {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+  .code-input-wrap input {
+    width: 200px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.1);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 1.1rem;
+    text-align: center;
+    letter-spacing: 4px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .code-input-wrap input:focus { border-color: var(--accent); }
+  .btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #6a4ce0; transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid rgba(255,255,255,0.1); }
+  .error-msg {
+    color: var(--red);
+    font-size: 0.85rem;
+    margin-top: 12px;
+    min-height: 20px;
+  }
+
+  /* File List Screen */
+  .file-screen { display: none; }
+  .file-screen.active { display: block; }
+
+  .header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .header-bar h2 {
+    font-size: 1.3rem;
+    background: linear-gradient(135deg, var(--accent2), #f093fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .header-bar .count {
+    font-size: 0.8rem;
+    color: var(--muted);
+    background: var(--surface);
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+  .search-box {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+
+  /* File Cards */
+  .file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .file-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    border: 1px solid rgba(255,255,255,0.04);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .file-card:hover {
+    transform: translateX(4px);
+    box-shadow: var(--shadow);
+  }
+  .file-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+    width: 48px;
+    text-align: center;
+  }
+  .file-meta {
+    flex: 1;
+    min-width: 0;
+  }
+  .file-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .file-info {
+    font-size: 0.75rem;
+    color: var(--muted);
+    display: flex;
+    gap: 12px;
+    margin-top: 2px;
+  }
+  .dl-btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: inline-block;
+  }
+  .dl-btn:hover { background: #6a4ce0; transform: scale(1.04); }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+  }
+
+  .footer {
+    text-align: center;
+    padding: 24px;
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+
+  @media (max-width: 480px) {
+    .code-input-wrap { flex-direction: column; align-items: center; }
+    .code-input-wrap input { width: 100%; }
+    .file-card { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ===== 提取码验证 ===== -->
+  <div class="lock-screen" id="lockScreen">
+    <div class="lock-icon">🔐</div>
+    <h1>小猪的文件站</h1>
+    <p class="desc">请输入提取码以访问文件</p>
+    <div class="code-input-wrap">
+      <input type="password" id="codeInput" placeholder="输入提取码" maxlength="16" onkeydown="if(event.key==='Enter')checkCode()">
+      <button class="btn btn-primary" onclick="checkCode()">验证</button>
+    </div>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <!-- ===== 文件列表 ===== -->
+  <div class="file-screen" id="fileScreen">
+    <div class="header-bar">
+      <h2>📁 可用文件</h2>
+      <span class="count" id="fileCount">0 个文件</span>
+    </div>
+    <input type="text" class="search-box" id="searchInput" placeholder="🔍 搜索文件名..." oninput="renderFiles()">
+    <div class="file-list" id="fileList"></div>
+    <button class="btn btn-ghost" style="margin-top:16px;width:100%;" onclick="lockAgain()">🔒 重新锁定</button>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>🐷 小猪的文件站 · 提取码保护 · Powered by GitHub Pages</p>
+</div>
+
+<script>
+  // ========== 配置 ==========
+  // 提取码（修改为你想要的）
+  const ACCESS_CODE = '1234';
+
+  // 文件列表（修改这里来管理文件）
+  const FILES = [
+    {
+      name: 'WorkBuddy使用指南.pdf',
+      size: '2.3 MB',
+      type: 'PDF',
+      desc: '2024-06-20',
+      url: 'https://example.com/files/guide.pdf',
+      icon: '📄'
+    },
+    {
+      name: '项目源码包 v1.2.zip',
+      size: '15.8 MB',
+      type: 'ZIP',
+      desc: '2024-06-15',
+      url: 'https://example.com/files/project-v1.2.zip',
+      icon: '📦'
+    },
+    {
+      name: '学习笔记合集.md',
+      size: '340 KB',
+      type: '文档',
+      desc: '2024-06-10',
+      url: 'https://example.com/files/notes.md',
+      icon: '📝'
+    },
+    {
+      name: '工具软件安装包.exe',
+      size: '48.1 MB',
+      type: '程序',
+      desc: '2024-06-01',
+      url: 'https://example.com/files/tool.exe',
+      icon: '⚙️'
+    }
+  ];
+
+  // ========== 逻辑 ==========
+  const CODE_KEY = 'filehub_access';
+
+  function checkCode() {
+    const input = document.getElementById('codeInput').value.trim();
+    const err = document.getElementById('errorMsg');
+    if (!input) { err.textContent = '请输入提取码'; return; }
+    if (input !== ACCESS_CODE) {
+      err.textContent = '❌ 提取码错误，请重试';
+      document.getElementById('codeInput').value = '';
+      return;
+    }
+    sessionStorage.setItem(CODE_KEY, '1');
+    showFiles();
+  }
+
+  function showFiles() {
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('fileScreen').classList.add('active');
+    renderFiles();
+  }
+
+  function lockAgain() {
+    sessionStorage.removeItem(CODE_KEY);
+    document.getElementById('lockScreen').style.display = 'block';
+    document.getElementById('fileScreen').classList.remove('active');
+    document.getElementById('codeInput').value = '';
+    document.getElementById('errorMsg').textContent = '';
+  }
+
+  function renderFiles() {
+    const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    const filtered = q ? FILES.filter(f =>
+      f.name.toLowerCase().includes(q) ||
+      f.desc.toLowerCase().includes(q) ||
+      f.type.toLowerCase().includes(q)
+    ) : FILES;
+
+    document.getElementById('fileCount').textContent = `${filtered.length} 个文件`;
+
+    const list = document.getElementById('fileList');
+    if (filtered.length === 0) {
+      list.innerHTML = '<div class="empty-state">🔍 没有匹配的文件</div>';
+      return;
+    }
+
+    list.innerHTML = filtered.map(f => `
+      <div class="file-card">
+        <div class="file-icon">${f.icon}</div>
+        <div class="file-meta">
+          <div class="file-name">${f.name}</div>
+          <div class="file-info">
+            <span>${f.size}</span>
+            <span>${f.type}</span>
+            <span>${f.desc}</span>
+          </div>
+        </div>
+        <a href="${f.url}" class="dl-btn" download>⬇ 下载</a>
+      </div>
+    `).join('');
+  }
+
+  // 自动验证
+  if (sessionStorage.getItem(CODE_KEY)) showFiles();
+</script>
+
+</body>
+</html>
