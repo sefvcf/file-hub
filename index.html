@@ -339,7 +339,7 @@ async function loadFiles() {
     if (!resp.ok) { files = []; return; }
     const data = await resp.json();
     if (!Array.isArray(data)) { files = []; return; }
-    files = data.filter(f => f.type === 'file').map(f => ({
+    files = data.filter(f => f.type === 'file' && f.name !== '.gitkeep').map(f => ({
       name: f.name,
       bytes: f.size || 0,
       size: formatSize(f.size || 0),
