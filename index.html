@@ -443,15 +443,18 @@ function renderFiles() {
     <div class="file-card">
       <div class="file-icon">${f.icon}</div>
       <div class="file-meta"><div class="file-name">${escHtml(f.name)}</div><div class="file-info"><span>${f.size}</span><span>${f.type}</span><span>${f.desc}</span></div></div>
-      <button class="dl-btn" onclick="downloadFile(${JSON.stringify(f.name)}, ${JSON.stringify(f.url)})">⬇</button>
+      <button class="dl-btn" data-dl="${escHtml(f.url)}" data-fname="${escHtml(f.name)}">⬇</button>
       <button class="del-btn" data-name="${escHtml(f.name)}" title="删除">🗑</button>
     </div>
   `).join('');
 
-  // 事件委托：删除按钮
+  // 事件委托：下载+删除按钮
   document.getElementById('fileList').onclick = function(e) {
     const delBtn = e.target.closest('.del-btn');
-    if (delBtn) deleteFile(delBtn.dataset.name);
+    if (delBtn) { deleteFile(delBtn.dataset.name); return; }
+    const dlBtn = e.target.closest('.dl-btn');
+    if (dlBtn) { downloadFile(dlBtn.dataset.fname, dlBtn.dataset.dl); return; }
+  };
   };
 }
 
