@@ -114,6 +114,10 @@
     padding: 7px 16px; border-radius: 8px; border: none; background: var(--accent); color: #fff;
     font-size: 0.82rem; font-weight: 600; cursor: pointer; flex-shrink: 0; text-decoration: none; transition: all 0.3s; }
   .dl-btn:hover { background: #6a4ce0; transform: scale(1.04); }
+  .del-btn {
+    padding: 7px 10px; border-radius: 8px; border: 1px solid rgba(248,113,113,0.3); background: transparent;
+    color: var(--red); font-size: 0.82rem; cursor: pointer; flex-shrink: 0; transition: all 0.3s; }
+  .del-btn:hover { background: var(--red); color: #fff; }
   .empty-state { text-align: center; padding: 40px; color: var(--muted); }
 
   .footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.72rem; }
@@ -362,10 +366,41 @@ async function downloadFile(name, url) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
-    btn.textContent = '⬇ 下载'; btn.disabled = false;
+    btn.textContent = '⬇'; btn.disabled = false;
   } catch(e) {
-    btn.textContent = '❌ 重试'; btn.disabled = false;
+    btn.textContent = '❌'; btn.disabled = false;
     window.open(url, '_blank');
+  }
+}
+
+async function deleteFile(name) {
+  const token = sessionStorage.getItem(TOKEN_KEY);
+  if (!token) { alert('请先在顶部上传区输入并保存 GitHub Token'); return; }
+  if (!confirm(`确认删除「${name}」？此操作不可撤销。`)) return;
+
+  const btn = event.target;
+  btn.textContent = '⏳'; btn.disabled = true;
+  try {
+    // 先获取文件 SHA
+    const getResp = await fetch(`https://api.github.com/repos/${REPO}/contents/files/${encodeURIComponent(name)}?ref=main`, {
+      headers: { 'Authorization': `token ${token}` }
+    });
+    if (!getResp.ok) throw new Error(`获取文件信息失败: ${getResp.status}`);
+    const fileInfo = await getResp.json();
+
+    // 删除文件
+    const delResp = await fetch(`https://api.github.com/repos/${REPO}/contents/files/${encodeURIComponent(name)}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `删除 ${name}`, sha: fileInfo.sha, branch: 'main' })
+    });
+    if (!delResp.ok) throw new Error(`删除失败: ${delResp.status}`);
+
+    await loadFiles();
+    renderFiles();
+  } catch(e) {
+    alert('删除失败: ' + e.message);
+    btn.textContent = '🗑'; btn.disabled = false;
   }
 }
 
@@ -382,7 +417,8 @@ function renderFiles() {
     <div class="file-card">
       <div class="file-icon">${f.icon}</div>
       <div class="file-meta"><div class="file-name">${f.name}</div><div class="file-info"><span>${f.size}</span><span>${f.type}</span><span>${f.desc}</span></div></div>
-      <button class="dl-btn" onclick="downloadFile('${f.name}', '${f.url}')">⬇ 下载</button>
+      <button class="dl-btn" onclick="downloadFile('${f.name}', '${f.url}')">⬇</button>
+      <button class="del-btn" onclick="deleteFile('${f.name}')" title="删除">🗑</button>
     </div>
   `).join('');
 }
