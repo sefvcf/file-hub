@@ -335,7 +335,7 @@ async function uploadAll() {
 // ========== Download ==========
 async function loadFiles() {
   try {
-    const resp = await fetch(`https://api.github.com/repos/${REPO}/contents/files?ref=main`);
+    const resp = await fetch(`https://api.github.com/repos/${REPO}/contents/files?ref=main&_t=${Date.now()}`);
     if (!resp.ok) { files = []; return; }
     const data = await resp.json();
     if (!Array.isArray(data)) { files = []; return; }
@@ -393,9 +393,11 @@ async function deleteFile(name) {
   const btn = document.querySelector(`.del-btn[data-name="${name.replace(/"/g, '&quot;')}"]`);
   if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
   try {
-    const getResp = await fetch(`https://api.github.com/repos/${REPO}/contents/files/${encodeURIComponent(name)}?ref=main`, {
+    const getResp = await fetch(`https://api.github.com/repos/${REPO}/contents/files/${encodeURIComponent(name)}?ref=main&_t=${Date.now()}`, {
       headers: { 'Authorization': `token ${token}` }
     });
+    // 文件不存在 = 已删除，直接刷新列表
+    if (getResp.status === 404) { await loadFiles(); renderFiles(); return; }
     if (!getResp.ok) throw new Error(`获取信息失败(${getResp.status})`);
     const fileInfo = await getResp.json();
 
@@ -404,15 +406,18 @@ async function deleteFile(name) {
       headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: `Delete ${name}`, sha: fileInfo.sha, branch: 'main' })
     });
+    // 删除时404 = 已被删过，刷新即可
+    if (delResp.status === 404) { await loadFiles(); renderFiles(); return; }
     if (!delResp.ok) {
       const e = await delResp.json().catch(() => ({}));
-      throw new Error(`${delResp.status}: ${e.message || 'Token权限不够，需要 repo 权限'}`);
+      throw new Error(`${delResp.status}: ${e.message || '权限不足'}`);
     }
 
     await loadFiles();
     renderFiles();
   } catch(e) {
     alert('删除失败: ' + e.message);
+    await loadFiles(); renderFiles(); // 出错也刷新
     if (btn) { btn.textContent = '🗑'; btn.disabled = false; }
   }
 }
