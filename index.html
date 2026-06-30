@@ -390,29 +390,30 @@ async function deleteFile(name) {
   if (!token) { alert('请先在顶部上传区输入并保存 GitHub Token'); return; }
   if (!confirm(`确认删除「${name}」？此操作不可撤销。`)) return;
 
-  const btn = event.target;
-  btn.textContent = '⏳'; btn.disabled = true;
+  const btn = document.querySelector(`.del-btn[data-name="${name.replace(/"/g, '&quot;')}"]`);
+  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
   try {
-    // 先获取文件 SHA
     const getResp = await fetch(`https://api.github.com/repos/${REPO}/contents/files/${encodeURIComponent(name)}?ref=main`, {
       headers: { 'Authorization': `token ${token}` }
     });
-    if (!getResp.ok) throw new Error(`获取文件信息失败: ${getResp.status}`);
+    if (!getResp.ok) throw new Error(`获取信息失败(${getResp.status})`);
     const fileInfo = await getResp.json();
 
-    // 删除文件
     const delResp = await fetch(`https://api.github.com/repos/${REPO}/contents/files/${encodeURIComponent(name)}`, {
       method: 'DELETE',
       headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: `删除 ${name}`, sha: fileInfo.sha, branch: 'main' })
+      body: JSON.stringify({ message: `Delete ${name}`, sha: fileInfo.sha, branch: 'main' })
     });
-    if (!delResp.ok) throw new Error(`删除失败: ${delResp.status}`);
+    if (!delResp.ok) {
+      const e = await delResp.json().catch(() => ({}));
+      throw new Error(`${delResp.status}: ${e.message || 'Token权限不够，需要 repo 权限'}`);
+    }
 
     await loadFiles();
     renderFiles();
   } catch(e) {
     alert('删除失败: ' + e.message);
-    btn.textContent = '🗑'; btn.disabled = false;
+    if (btn) { btn.textContent = '🗑'; btn.disabled = false; }
   }
 }
 
@@ -436,11 +437,21 @@ function renderFiles() {
   list.innerHTML = filtered.map(f => `
     <div class="file-card">
       <div class="file-icon">${f.icon}</div>
-      <div class="file-meta"><div class="file-name">${f.name}</div><div class="file-info"><span>${f.size}</span><span>${f.type}</span><span>${f.desc}</span></div></div>
-      <button class="dl-btn" onclick="downloadFile('${f.name}', '${f.url}')">⬇</button>
-      <button class="del-btn" onclick="deleteFile('${f.name}')" title="删除">🗑</button>
+      <div class="file-meta"><div class="file-name">${escHtml(f.name)}</div><div class="file-info"><span>${f.size}</span><span>${f.type}</span><span>${f.desc}</span></div></div>
+      <button class="dl-btn" onclick="downloadFile(${JSON.stringify(f.name)}, ${JSON.stringify(f.url)})">⬇</button>
+      <button class="del-btn" data-name="${escHtml(f.name)}" title="删除">🗑</button>
     </div>
   `).join('');
+
+  // 事件委托：删除按钮
+  document.getElementById('fileList').onclick = function(e) {
+    const delBtn = e.target.closest('.del-btn');
+    if (delBtn) deleteFile(delBtn.dataset.name);
+  };
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 // Init
